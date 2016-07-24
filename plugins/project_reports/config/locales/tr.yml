@@ -1,0 +1,30 @@
+tr:
+  label_send_report_added_information: "Proje üyelerine proje raporu eklendi bildirimi gönder."
+   #burak
+  mail_subject_project_report_added: "Kullanıcı (%{user}) yeni bir proje raporu ekledi."
+  mail_body_project_report_added: "Kullanıcı '%{user}' yeni proje raporu: (%{report}) nu '%{project}' projesine ekledi. Eklenen raporları gör:"
+  #burak
+
+  #burak
+  label_project_report: Proje Raporu
+  label_project_report_plural: Proje Raporları
+  label_project_report_new: Yeni Proje Raporu
+  label_project_report_delete: Proje Raporunu Sil
+  label_project_report_added: Proje Raporu Eklendi
+
+  #burak
+  button_upload: Yükle
+
+  #burak
+  label_optional_title: Optional title
+  label_attachment_format: Sadece .doc, .docx, .pdf, .txt, .html, .odt, .xls, .xlsx, .odf, .odp, .ppt, .pptx, .zip formatları kullanılır.
+  label_project_report_plural: "Proje Raporları"
+  field_report_title: "Rapor Başlığı"
+  field_report_description: "Açıklama"
+  field_report_type: "Rapor Türü"
+  field_report_owner: "Rapor Sahibi"
+  field_filesize: "Dosya Boyutu"
+  field_report_uploaddate: "Yüklenme Tarihi"
+
+  project_reportss: 'Proje Raporları'
+  #burak

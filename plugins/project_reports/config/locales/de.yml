@@ -1,0 +1,25 @@
+
+de:
+  label_send_report_added_information: "Senden Bericht hinzugefügt Mitteilung an die Projektmitglieder"
+   #irem
+  mail_subject_project_report_added: "Ein Benutzer (% {user}) hat eine neue Projektbericht aufgenommen"
+  mail_body_project_report_added: "The user '%{user}' has added a new project report (%{report}) to the project '%{project}'. To see the added reports:"
+  #irem
+
+  #irem
+  label_project_report: "Projektbericht"
+  label_project_report_plural: "Projektberichte"
+  label_project_report_new: "Neue Projektbericht"
+  label_project_report_delete: "Löschen Projektbericht"
+  label_project_report_added: "Project Report Added"
+
+  #irem
+  button_upload: "Upload"
+
+  #irem
+  label_optional_title: "Optional Titel"
+  label_attachment_format: "Verfügbaren Formate: doc, docx, .pdf, .txt, .html, .odt, .xls, .xlsx, .odf, .odp, .ppt, .pptx, .zip"
+  #irem
+
+
+  project_reportss: 'Projektberichte'

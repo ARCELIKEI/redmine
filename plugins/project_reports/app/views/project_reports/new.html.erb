@@ -1,0 +1,21 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'project_reports', :plugin => 'project_reports' %>
+<% end %>
+<h2><%=l(:label_project_report_new)%></h2>
+
+<%= error_messages_for 'attachment' %>
+<%= form_tag({:action => :upload}, :multipart => true, :class => "tabular") do %>
+<div class="box">
+
+<p><label><%=l(:label_attachment_plural)%></label><%= render :partial => 'upload_form' %></p>
+<div class="fileFormat"><%=l(:label_attachment_format)%></div>
+</div>
+
+<% if email_delivery_enabled? %>
+    <p><label class="send_info"><%= check_box_tag 'send_information', 1, true %> <%= l(:label_send_report_added_information) %></label></p>
+<% end %>
+
+<%= submit_tag l(:button_upload), :onclick => 'return checkFileFields();'%>
+<% end %>
+
+<% html_title(l(:label_project_report_plural)) -%>

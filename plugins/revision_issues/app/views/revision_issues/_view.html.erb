@@ -1,0 +1,9 @@
+<%= javascript_include_tag 'jquery_multiselect', :plugin => 'revision_issues' %>
+<%= javascript_include_tag 'revision_issues', :plugin => 'revision_issues' %>
+<%= stylesheet_link_tag 'revision_issues', :plugin => 'revision_issues' %>
+
+<p>
+<label>Related Revisions :</label>
+<%= select_tag "revision_id", options_for_select(revisions.map {|s| [s.title, s.revision]}, 
+revision_issues.map {|j| j.revision_id}) , :multiple => true %>
+</p>

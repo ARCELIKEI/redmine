@@ -1,0 +1,97 @@
+
+
+<div class="contextual">
+
+<%=link_to l(:button_back), 			{ 	:controller => 'risks' , :action => 'index'},
+								:class => "icon icon-cancel" %>
+
+<%=link_to l(:button_remove_risk), 		{ 	:controller => 'risks' , :action => 'remove', :id => @risk.id, },
+								:class => "icon icon-del",
+								:confirm => "The risk will be deleted" %>
+
+<%=link_to l(:button_edit_risk), 	{ 	:controller => 'risks', :action => 'edit', :id => @risk.id, :from => 'First Edit'},
+								:class => "icon icon-edit",
+								:confirm => "Do you want to edit this risk?"%>
+
+</div>
+
+<h2> <%= @risk.title %> </h2>
+<div class='details'>
+	<table class="list ">
+		<thead>
+			<tr>
+				<th><%= l(:field_prob_value) %></th>
+				<th><%= l(:field_impact_value) %></th>
+				<th><%= l(:field_risk_eval_value) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><%= @risk.probability_value/10.0 %></td>
+				<td><%= @risk.impact_value %></td>
+				<% if (@risk.risk_evaluation).to_f/(10.0) < @settings['low_to_mid_threshold'].to_i %>
+					<td style='background-color:#9AFE2E;' ><%= (@risk.risk_evaluation).to_f/(10.0) %></td>
+				<% elsif (@risk.risk_evaluation).to_f/(10.0) >= @settings['mid_to_high_threshold'].to_i %>
+					<td style='background-color:#FE2E2E;' ><%= (@risk.risk_evaluation).to_f/(10.0) %></td>
+				<% else %>
+					<td style='background-color:#FFCC00;' ><%= (@risk.risk_evaluation).to_f/(10.0) %></td>
+				<% end %>
+			</tr>
+		</tbody>
+	</table>
+
+	<p><strong><th><%= l(:field_risk_description) %></strong></p>
+	<div class="wiki">
+	    <p>
+	    	<%= textilizable @risk, :description %>
+	    </p>
+	</div>
+	<hr>
+
+	<p><strong><th><%= l(:field_trig_event) %></strong></p>
+	<div class="wiki">
+	     <p>
+	    	<%= textilizable @risk, :trigger_event %>
+	    </p>
+	</div>
+	<hr>
+
+	<p><strong><th><%= l(:field_mitig_contin) %></strong></p>
+	<div class="wiki">
+	     <p>
+	    	<%= textilizable @risk, :mitigation_contingency %>
+	    </p>
+	</div>
+
+	<table class="list ">
+		<thead>
+			<tr>
+				<th><%= l(:field_assigned_to) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @allAssignessOfRisk = RiskAssignee.where(:risk_id => @risk.id) %>
+			<% if @allAssignessOfRisk.length > 0 %>
+				<% @allAssignessOfRisk.each do |assignee| %>
+					<tr>
+						<td>
+							<%= link_to User.find( assignee.user_id ).name, { :controller => 'users', :action => 'show', :id => assignee.user_id }, style: 'color: #008cdd;' %>
+							<% if assignee != @allAssignessOfRisk.last %>
+							<% end %>
+						</td>
+					</tr>
+				<% end %>
+			<% else %>
+				<tr>
+					<td>
+						<th><%= l(:field_no_ass) %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+
+<% other_formats_links do |f| %>
+	<%= f.link_to 'PDF' %>
+<% end %>

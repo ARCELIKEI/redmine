@@ -1,0 +1,75 @@
+<h2><%= l(:field_edit_risk_title) %> </h2>
+<div class="contextual">
+	<%= link_to l(:field_edit_new_assignee), {:controller => 'risks', :action => 'edit_add_risk_assignee'} ,  :class => "icon icon-add" %>
+</div>
+
+<h3><%= l(:field_add_remove_ass) %></h3> 
+<div class="box tabular">
+	<% if @all_assignees.length > 0 %> 
+		<table class="list">
+			<thead>
+				<tr>	
+					<th><%= l(:field_assignee_name) %></th> 	
+					<th><%= l(:field_remove_assignee) %></th>
+				</tr>	
+			</thead>	
+			<tbody>
+				<% @all_assignees.each do |assignee| %>	
+					<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+						<td><%= User.find( assignee.user_id ).name %></td>
+						<td><%=link_to l(:remove_assignee_link), {
+							:controller => 'risks' , 
+							:action => 'edit_remove_risk_assignee',
+							:id => assignee.id
+							}, 
+							:method => 'post',
+							:confirm => "The assignee will be deleted" %>
+						</td>		
+					</tr>
+				<% end %>			
+			</tbody>	
+		</table>	
+	<% else %>
+		<p><%= l(:field_no_assignee) %> </p>
+	<% end %>
+</div>
+
+<h3><%= l(:set_field_of_risks) %></h3> 
+
+<%= labelled_form_for @edited_risk, :url => 'edit_save' do |f| %>
+	<div class="box tabular">
+		<p><%= f.text_field :title, :required => :true, :size => 70 %></p>
+
+		<% options_for_probability_value = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] %>
+		<% options_for_impact_value = [1,2,3,4,5,6,7,8,9,10] %>
+		<table class=" ">
+			<tbody>
+				<tr>
+					<td>
+						<p><%= f.select :probability_value, options_for_probability_value.map{ |opt| [opt,opt] }, :required => true, :selected => ((@edited_risk.probability_value).to_f / 10.0) %></p>
+					</td>
+					<td>
+						<p><%= f.select :impact_value, options_for_impact_value.map{ |opt| [opt,opt] }, :required => :true %></p>
+					</td>
+					<td>
+						<p><%= f.select :risk_status_id,  (RiskStatus.all.collect{|rs| [rs.status_text, rs.id]}), :required => :true %></p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p><%= f.text_area :description, :required => :true, :cols => 60, :rows => 15, :class => 'wiki-edit'%></p>
+		<%= wikitoolbar_for 'risk_description' %>
+
+		<p><%= f.text_area :trigger_event, :cols => 60, :rows => 15, :class => 'wiki-edit'%></p>
+	 	<%= wikitoolbar_for 'risk_trigger_event' %>
+
+	 	<p><%= f.text_area :mitigation_contingency, :cols => 60, :rows => 15, :class => 'wiki-edit'%></p>
+	 	<%= wikitoolbar_for 'risk_mitigation_contingency' %>
+	 	
+	</div>
+	
+	<p><%= f.submit l(:field_save_risk) %></p>
+
+<% end %>
+

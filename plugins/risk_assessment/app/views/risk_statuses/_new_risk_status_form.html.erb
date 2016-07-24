@@ -1,0 +1,4 @@
+<%= form_for @risk_status, :url => 'create_risk_status' do |f| %>
+	<p><%= f.label l(:field_new_status) %> : <%= f.text_field :status_text, :required => :true %></p>
+	<p><%= f.submit l(:field_create_status) %></p>
+<% end %>

@@ -1,0 +1,6 @@
+<h2><%= l(:add_risk_to_assignee) %> </h2>
+<%= form_for @risk_assignee, :url => 'create_add_risk_assignee_set' do |f| %>
+	<p><%= f.label l(:risk_new_assignee) %> : <%= f.select :user_id,  (Project.find( @project.id).users.all.collect{|u| [u.name, u.id]}), :required => :true %></p>
+	<p><%= f.submit l(:add_risk_assignee) %></p>
+
+<% end %>

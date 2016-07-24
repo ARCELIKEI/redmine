@@ -1,0 +1,117 @@
+<script type="text/javascript">
+function changeOrderImage(id, sort_type) {
+    document.getElementById(id).className = "sort " + sort_type;
+}
+ </script>
+
+<div class="contextual">
+	<%= link_to l(:field_new_risk_button), {:controller => 'risks', :action => 'new'} ,  :class => "icon icon-add" %>
+</div>
+
+<h2><%= l(:risks_about_project) %> <%= @project.name %> </h2>
+<% if @risks.length > 0 %>
+	<table class="list ">
+		<thead>
+			<tr>
+				<% if @sortType == "asc" %>
+					<th><%=link_to l(:risk_title_field), {:controller => 'risks', :action => 'index', :sort_type => "desc", :sorted_attr => "title_sort"},
+											{:id => "title_sort"} %></th>
+
+					<th><%=link_to l(:risk_prob_val_field), {:controller => 'risks', :action => 'index', :sort_type => "desc", :sorted_attr => "probability_sort"},
+											{:id => "probability_sort"}%></th>
+
+					<th><%=link_to l(:risk_impact_val_field), {:controller => 'risks', :action => 'index', :sort_type => "desc", :sorted_attr => "impact_sort"},
+											{:id => "impact_sort"}%></th>
+
+					<th><%=link_to l(:risk_eval_field), {:controller => 'risks', :action => 'index', :sort_type => "desc", :sorted_attr => "risk_sort"},
+											{:id => "risk_sort"}%></th>
+
+					<th><%=link_to l(:risk_status_field), {:controller => 'risks', :action => 'index', :sort_type => "desc", :sorted_attr => "status_sort"},
+											{:id => "status_sort"}%></th>
+
+					<%= javascript_tag "changeOrderImage('#{@sortAttr}','asc')" %>
+
+				<% else %>
+					<th><%=link_to l(:risk_title_field), {:controller => 'risks', :action => 'index', :sort_type => "asc", :sorted_attr => "title_sort"},
+											{:id => "title_sort"} %></th>
+
+					<th><%=link_to l(:risk_prob_val_field), {:controller => 'risks', :action => 'index', :sort_type => "asc", :sorted_attr => "probability_sort"},
+											{:id => "probability_sort"}%></th>
+
+					<th><%=link_to l(:risk_impact_val_field), {:controller => 'risks', :action => 'index', :sort_type => "asc", :sorted_attr => "impact_sort"},
+											{:id => "impact_sort"}%></th>
+
+					<th><%=link_to l(:risk_eval_field), {:controller => 'risks', :action => 'index', :sort_type => "asc", :sorted_attr => "risk_sort"},
+											{:id => "risk_sort"}%></th>
+
+					<th><%=link_to l(:risk_status_field), {:controller => 'risks', :action => 'index', :sort_type => "asc", :sorted_attr => "status_sort"},
+											{:id => "status_sort"}%></th>
+
+					<%= javascript_tag "changeOrderImage('#{@sortAttr}','desc')" %>
+
+				<% end %>
+				<th><%= l(:table_field_assigned_to) %></th>
+				<th><%= l(:table_field_actions) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @risks.each do |r| %>
+				<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+					<td><%= link_to r.title, { :controller => 'risks', :action => 'show', :risk_id => r.id }, :style => 'color: #008cdd;' %>
+					<td><%= (r.probability_value).to_f/(10.0) %></td>	<!-- It is integer actually, but virtually it is float!! -->
+					<td><%= r.impact_value %></td>
+
+					<% if (r.risk_evaluation).to_f/(10.0) <= @settings['low_to_mid_threshold'].to_i %>
+						<td style='background-color:#9AFE2E;' ><%= (r.risk_evaluation).to_f/(10.0) %></td>
+					<% elsif (r.risk_evaluation).to_f/(10.0) >= @settings['mid_to_high_threshold'].to_i %>
+						<td style='background-color:#FE2E2E;' ><%= (r.risk_evaluation).to_f/(10.0) %></td>
+					<% else %>
+						<td style='background-color:#FFCC00;' ><%= (r.risk_evaluation).to_f/(10.0) %></td>
+					<% end %>
+
+					 	<!-- It is integer actually, but virtually it is float!! -->
+
+					<td><%= RiskStatus.find( r.risk_status_id ).status_text %></td>
+
+					<td>
+						<table class="list ">
+							<tbody>
+								<% @allAssignessOfRisk = RiskAssignee.where(:risk_id =>r.id) %>
+								<% if @allAssignessOfRisk.length > 0 %>
+									<% @allAssignessOfRisk.each do |assignee| %>
+										<tr>
+											<td>
+												<%= User.find( assignee.user_id ).name %>
+												<% if assignee != @allAssignessOfRisk.last %>
+												<% end %>
+											</td>
+										</tr>
+									<% end %>
+								<% else %>
+										<%= l(:field_no_ass) %>
+								<% end %>
+							</tbody>
+						</table>
+					</td>
+
+					<td><%=link_to l(:tag_remove_risk), 	{ 	:controller => 'risks', :action => 'remove', :id => r.id },
+														:confirm => "The risk will be deleted"	%>
+						<br></br>
+						<%=link_to l(:tag_edit_risk), 	{ 	:controller => 'risks', :action => 'edit', :id => r.id, :from => 'First Edit'},
+														:confirm => "Do you want to edit this risk?"
+						%>
+					</td>
+				</tr>
+			<%end%>
+		</tbody>
+	</table>
+
+	<% other_formats_links do |f| %>
+		<%= f.link_to 'XLS', url: params %>
+		<%= f.link_to 'PDF', url: params %>
+	<% end %>
+
+
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

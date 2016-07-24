@@ -1,0 +1,52 @@
+<div class="contextual">
+	<%= link_to l(:new_risk_status_field), {:controller => 'risk_statuses', :action => 'new_risk_status'} ,  :class => "icon icon-add" %>
+</div>
+
+<%= content_for :sidebar do %>
+	<h3><%= l(:field_admin) %></h3>
+		<div id="admin-menu">
+		  	<%= render_menu  :admin_menu %>
+		</div>
+<% end %>
+<h2><%= l(:field_risk_statuses) %></h2>
+<% if @risk_statuses.length > 0 %>
+	<table class="list ">
+		<thead>
+			<tr>
+				<th><%= l(:field_new_status) %></th>
+				<th><%= l(:field_remove_status) %></th>
+				<th><%= l(:field_edit_status_table) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @risk_statuses.each do |rs| %>
+				<tr  class="hascontextmenu <%= cycle('odd', 'even') %> ">
+					<td><%= rs.status_text %></td>
+					<td><%=link_to l(:field_remove_from_list_status), {
+						:controller => 'risk_statuses' , 
+						:action => 'remove_risk_status',
+						:id => rs.id
+						}, 
+						:confirm => "The risk status will be deleted"
+						%>
+					</td>
+
+					<td><%=link_to l(:field_edit_status), {
+						:controller => 'risk_statuses' , 
+						:action => 'edit',
+						:id => rs.id
+						}, 
+						:confirm => "The risk status will be edited"
+						%>
+					</td>
+				</tr>
+			<%end%>
+		</tbody>
+	</table>
+<% else %>
+	 <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+
+
+

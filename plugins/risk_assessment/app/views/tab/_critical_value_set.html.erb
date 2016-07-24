@@ -1,0 +1,33 @@
+<script type="text/javascript">
+  function validateRiskAssessmentForm() {
+    
+    var low_to_mid_threshold = document.getElementById("low_to_mid_threshold").value;
+    var mid_to_high_threshold = document.getElementById("mid_to_high_threshold").value;
+    if ( mid_to_high_threshold <= low_to_mid_threshold ) {
+      alert( "The Middle to High Threshold value cannot be less than or equal to Low to Middle Threshold value.");
+      return false;
+    }
+    return true;
+  }
+</script>
+
+<table>
+  <tbody>
+  	<% tabsetting = settings['risk_assessment']; %>
+  	<% low_to_mid_threshold = tabsetting['low_to_mid_threshold'].to_i %>
+  	<% mid_to_high_threshold = tabsetting['mid_to_high_threshold'].to_i %>
+  	<% difference = (mid_to_high_threshold - low_to_mid_threshold) %>
+    <tr>
+      <td>Low to Middle Threshold</td>
+      <td><input type="number" value="<%= low_to_mid_threshold %>" id="low_to_mid_threshold"
+                       name="settings[risk_assessment][low_to_mid_threshold]" min="0" max="10" ></td>
+    <tr>
+    </tr>
+      <td>Middle to High Threshold</td>
+      <td><input type="number" value="<%= mid_to_high_threshold %>" id = "mid_to_high_threshold"
+                       name="settings[risk_assessment][mid_to_high_threshold]" min="0" max="10" ></td>
+
+    </tr>
+  </tbody>
+</table>
+<p><%= submit_tag "Save", :onclick => "return validateRiskAssessmentForm();" %></p>
