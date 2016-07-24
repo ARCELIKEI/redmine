@@ -40,10 +40,15 @@ class IssuesController < ApplicationController
   helper :sort
   include SortHelper
   helper :timelog
+  include Redmine::Export::PDF::IssuesPdfHelper
+  include IssuesHelper
+  include CustomFieldsHelper
+  include ActionView::Helpers::NumberHelper
 
   def index
     retrieve_query
-    sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
+    sort_init(@query.sort_criteria.empty? ? [['root_id', 'desc'], ['id', 'desc']] : @query.sort_criteria)
+
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
 
@@ -58,6 +63,8 @@ class IssuesController < ApplicationController
         @limit = Setting.feeds_limit.to_i
       when 'xml', 'json'
         @offset, @limit = api_offset_and_limit
+        params[:limit] ? @limit = params[:limit] : @limit = 10000
+        params[:offset] ? @offset = params[:offset] : @offset = 0
         @query.column_names = %w(author)
       else
         @limit = per_page_option
@@ -71,6 +78,13 @@ class IssuesController < ApplicationController
                               :offset => @offset,
                               :limit => @limit)
       @issue_count_by_group = @query.issue_count_by_group
+      if params[:from_search_tag]
+        @issues = []
+        params[:issue_id_list].each do |id|
+          @issues.append(Issue.find_by_id(id))
+        end
+        @issue_count = params[:issue_id_list].length
+      end
 
       respond_to do |format|
         format.html { render :template => 'issues/index', :layout => !request.xhr? }
@@ -79,7 +93,13 @@ class IssuesController < ApplicationController
         }
         format.atom { render_feed(@issues, :title => "#{@project || Setting.app_title}: #{l(:label_issue_plural)}") }
         format.csv  { send_data(query_to_csv(@issues, @query, params[:csv]), :type => 'text/csv; header=present', :filename => 'issues.csv') }
-        format.pdf  { send_file_headers! :type => 'application/pdf', :filename => 'issues.pdf' }
+        format.pdf  {
+          if (params['outputType'] == 'full')
+            send_data(issues_to_pdf_full(@issues, @project, @query), :type => 'application/pdf', :filename => "#{@project.identifier}_detailed_issues.pdf")
+          else
+            send_file_headers! :type => 'application/pdf', :filename => "#{@project.identifier}_issues.pdf"
+          end
+        }
       end
     else
       respond_to do |format|

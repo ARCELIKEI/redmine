@@ -28,6 +28,14 @@ module Redmine
         html_options = { :class => name.to_s.downcase, :rel => 'nofollow' }.merge(options)
         @view.content_tag('span', @view.link_to(caption, url, html_options))
       end
+
+      def link_to_alias(name, urlText, options={})
+        url = { :format => name.to_s.downcase }.merge(options.delete(:url) || {}).except('page')
+        caption = urlText
+        html_options = { :class => name.to_s.downcase, :rel => 'nofollow' }.merge(options)
+        @view.content_tag('span', @view.link_to(caption, url, html_options))
+      end
+
     end
   end
 end

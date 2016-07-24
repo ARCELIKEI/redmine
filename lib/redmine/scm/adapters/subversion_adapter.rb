@@ -24,7 +24,8 @@ module Redmine
       class SubversionAdapter < AbstractAdapter
 
         # SVN executable name
-        SVN_BIN = Redmine::Configuration['scm_subversion_command'] || "svn"
+        # SVN_BIN = Redmine::Configuration['scm_subversion_command'] || "svn"
+        SVN_BIN = "/usr/bin/svn"
 
         class << self
           def client_command
@@ -245,7 +246,7 @@ module Redmine
           str = ''
           str << " --username #{shell_quote(@login)}" unless @login.blank?
           str << " --password #{shell_quote(@password)}" unless @login.blank? || @password.blank?
-          str << " --no-auth-cache --non-interactive"
+          str << " --no-auth-cache --trust-server-cert --non-interactive --config-dir /opt/arriva/shared/svn"
           str
         end
 

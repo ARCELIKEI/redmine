@@ -52,6 +52,21 @@ module QueriesHelper
     s
   end
 
+
+  def retrieve_query_for_team_managers(members)
+    @query = IssueQuery.new(:name => "_")
+    @query.build_from_params(params)
+    @query.project = nil
+    filter = Hash.new
+    if params[:v]
+      filter["assigned_to_id"] = {:operator=>"=", :values=>members.map {|s| s.to_s} & params[:v]["assigned_to_id"]}
+    else
+      filter["assigned_to_id"] = {:operator=>"=", :values=>members.map {|s| s.to_s}}
+    end
+    @query.filters["assigned_to_id"] = filter["assigned_to_id"]
+    session[:query] = nil
+  end
+
   def query_filters_hidden_tags(query)
     tags = ''.html_safe
     query.filters.each do |field, options|
@@ -129,7 +144,11 @@ module QueriesHelper
   def column_content(column, issue)
     value = column.value_object(issue)
     if value.is_a?(Array)
-      value.collect {|v| column_value(column, issue, v)}.compact.join(', ').html_safe
+      if column.name.to_s == "commit"
+        value.collect {|v| column_value(column, issue, v[:revision_id])}.compact.sort.join(', ').html_safe
+      else
+        value.collect {|v| column_value(column, issue, v)}.compact.join(', ').html_safe
+      end
     else
       column_value(column, issue, value)
     end
@@ -141,6 +160,8 @@ module QueriesHelper
       link_to value, issue_path(issue)
     when :subject
       link_to value, issue_path(issue)
+    when :commit
+      link_to(h(value), :controller => "repositories", :action => "revision", :rev => value, :id => "#{@project.identifier}")
     when :parent
       value ? (value.visible? ? link_to_issue(value, :subject => false) : "##{value.id}") : ''
     when :description
@@ -273,5 +294,133 @@ module QueriesHelper
     end
 
     tags
+  end
+
+  private
+  def sql_for_field(query_given, field, operator, value, db_table, db_field, is_custom_filter=false)
+    puts "sql_for_field >> #{query_given.type_for(field)}"
+    sql = ''
+    case operator
+      when "="
+        if value.any?
+          case query_given.type_for(field)
+            when :date, :date_past
+              sql = date_clause(db_table, db_field, (Date.parse(value.first) rescue nil), (Date.parse(value.first) rescue nil))
+            when :integer
+              if is_custom_filter
+                sql = "(#{db_table}.#{db_field} <> '' AND CAST(#{db_table}.#{db_field} AS decimal(60,3)) = #{value.first.to_i})"
+              else
+                sql = "#{db_table}.#{db_field} = #{value.first.to_i}"
+              end
+            when :float
+              if is_custom_filter
+                sql = "(#{db_table}.#{db_field} <> '' AND CAST(#{db_table}.#{db_field} AS decimal(60,3)) BETWEEN #{value.first.to_f - 1e-5} AND #{value.first.to_f + 1e-5})"
+              else
+                sql = "#{db_table}.#{db_field} BETWEEN #{value.first.to_f - 1e-5} AND #{value.first.to_f + 1e-5}"
+              end
+            else
+              sql = field.eql?("created_at") ? date_clause(db_table, db_field, (Date.parse(value.first) rescue nil), (Date.parse(value.first) rescue nil)) : "#{db_table}.#{db_field} IN (" + value.collect{|val| "'#{ActiveRecord::Base.connection.quote_string(val)}'"}.join(",") + ")"
+          end
+        else
+          # IN an empty set
+          sql = "1=0"
+        end
+      when "!"
+        if value.any?
+          sql = "(#{db_table}.#{db_field} IS NULL OR #{db_table}.#{db_field} NOT IN (" + value.collect{|val| "'#{ActiveRecord::Base.connection.quote_string(val)}'"}.join(",") + "))"
+        else
+          # NOT IN an empty set
+          sql = "1=1"
+        end
+      when "!*"
+        sql = "#{db_table}.#{db_field} IS NULL"
+        sql << " OR #{db_table}.#{db_field} = ''" if is_custom_filter
+      when "*"
+        sql = "#{db_table}.#{db_field} IS NOT NULL"
+        sql << " AND #{db_table}.#{db_field} <> ''" if is_custom_filter
+      when ">="
+        if [:date, :date_past].include?(query_given.type_for(field)) || field.eql?("created_at")
+          sql = date_clause(db_table, db_field, (Date.parse(value.first) rescue nil), nil)
+        else
+          if is_custom_filter
+            sql = "(#{db_table}.#{db_field} <> '' AND CAST(#{db_table}.#{db_field} AS decimal(60,3)) >= #{value.first.to_f})"
+          else
+            sql = "#{db_table}.#{db_field} >= #{value.first.to_f}"
+          end
+        end
+      when "<="
+        if [:date, :date_past].include?(query_given.type_for(field)) || field.eql?("created_at")
+          sql = date_clause(db_table, db_field, nil, (Date.parse(value.first) rescue nil))
+        else
+          if is_custom_filter
+            sql = "(#{db_table}.#{db_field} <> '' AND CAST(#{db_table}.#{db_field} AS decimal(60,3)) <= #{value.first.to_f})"
+          else
+            sql = "#{db_table}.#{db_field} <= #{value.first.to_f}"
+          end
+        end
+      when "><"
+        if [:date, :date_past].include?(query_given.type_for(field)) || field.eql?("created_at")
+          sql = date_clause(db_table, db_field, (Date.parse(value[0]) rescue nil), (Date.parse(value[1]) rescue nil))
+        else
+          if is_custom_filter
+            sql = "(#{db_table}.#{db_field} <> '' AND CAST(#{db_table}.#{db_field} AS decimal(60,3)) BETWEEN #{value[0].to_f} AND #{value[1].to_f})"
+          else
+            sql = "#{db_table}.#{db_field} BETWEEN #{value[0].to_f} AND #{value[1].to_f}"
+          end
+        end
+
+      when ">t-"
+        sql = relative_date_clause(db_table, db_field, - value.first.to_i, 0)
+      when "<t-"
+        sql = relative_date_clause(db_table, db_field, nil, - value.first.to_i)
+      when "t-"
+        sql = relative_date_clause(db_table, db_field, - value.first.to_i, - value.first.to_i)
+      when ">t+"
+        sql = relative_date_clause(db_table, db_field, value.first.to_i, nil)
+      when "<t+"
+        sql = relative_date_clause(db_table, db_field, 0, value.first.to_i)
+      when "t+"
+        sql = relative_date_clause(db_table, db_field, value.first.to_i, value.first.to_i)
+      when "t"
+        sql = relative_date_clause(db_table, db_field, 0, 0)
+      when "w"
+        first_day_of_week = l(:general_first_day_of_week).to_i
+        day_of_week = Date.today.cwday
+        days_ago = (day_of_week >= first_day_of_week ? day_of_week - first_day_of_week : day_of_week + 7 - first_day_of_week)
+        sql = relative_date_clause(db_table, db_field, - days_ago, - days_ago + 6)
+      when "~"
+        sql = "LOWER(#{db_table}.#{db_field}) LIKE '%#{ActiveRecord::Base.connection.quote_string(value.first.to_s.downcase)}%'"
+      when "!~"
+        sql = "LOWER(#{db_table}.#{db_field}) NOT LIKE '%#{ActiveRecord::Base.connection.quote_string(value.first.to_s.downcase)}%'"
+      else
+        #raise "Unknown query operator #{operator}"
+    end
+
+    return sql
+  end
+
+  def date_clause(table, field, from, to)
+    time = Time.new
+    s = []
+    if from
+      from_yesterday = from - 1
+      from_yesterday_time = Time.local(from_yesterday.year, from_yesterday.month, from_yesterday.day)
+      if time.zone == :utc
+        from_yesterday_time = from_yesterday_time.utc
+      end
+      s << ("#{table}.#{field} > '%s'" % [ActiveRecord::Base.connection.quoted_date(from_yesterday_time.end_of_day)])
+    end
+    if to
+      to_time = Time.local(to.year, to.month, to.day)
+      if time.zone == :utc
+        to_time = to_time.utc
+      end
+      s << ("#{table}.#{field} <= '%s'" % [ActiveRecord::Base.connection.quoted_date(to_time.end_of_day)])
+    end
+    s.join(' AND ')
+  end
+
+  def relative_date_clause(table, field, days_from, days_to)
+    date_clause(table, field, (days_from ? Date.today + days_from : nil), (days_to ? Date.today + days_to : nil))
   end
 end

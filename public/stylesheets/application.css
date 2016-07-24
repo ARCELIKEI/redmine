@@ -351,6 +351,12 @@ span.search_for_watchers a, span.add_attachment a {padding-left:16px; background
   word-wrap: break-word;
   border-radius: 3px;
 }
+
+.box .fileFormat{
+  text-align:right;
+  font-size:10px;
+}
+
 .pagination .per-page span.selected {
   font-weight: bold;
 }

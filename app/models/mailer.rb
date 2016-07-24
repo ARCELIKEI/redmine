@@ -39,6 +39,22 @@ class Mailer < ActionMailer::Base
     options
   end
 
+  # Send the email to all active members
+  def project_report_added(user,attachmentName, project,url)
+    @user = user
+    @attachmentName = attachmentName
+    @project = project
+    @url = url
+    recipients = []
+    @project.members.each do |member|
+      recipients << (User.find_by_id(member[:user_id])).mail
+    end
+
+    puts recipients
+    mail :to => recipients,
+      :subject => l(:mail_subject_project_report_added,:user => @user.name)
+  end
+
   # Builds a mail for notifying to_users and cc_users about a new issue
   def issue_add(issue, to_users, cc_users)
     redmine_headers 'Project' => issue.project.identifier,

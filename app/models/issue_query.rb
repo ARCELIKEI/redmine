@@ -43,7 +43,8 @@ class IssueQuery < Query
     QueryColumn.new(:created_on, :sortable => "#{Issue.table_name}.created_on", :default_order => 'desc'),
     QueryColumn.new(:closed_on, :sortable => "#{Issue.table_name}.closed_on", :default_order => 'desc'),
     QueryColumn.new(:relations, :caption => :label_related_issues),
-    QueryColumn.new(:description, :inline => false)
+    QueryColumn.new(:description, :inline => false),
+    QueryColumn.new(:commit, :sortable => "#{RevisionIssues.table_name}", :default_order => 'desc')
   ]
 
   scope :visible, lambda {|*args|

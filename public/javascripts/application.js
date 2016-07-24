@@ -1,5 +1,6 @@
 /* Redmine - project management software
    Copyright (C) 2006-2016  Jean-Philippe Lang */
+//= require jquery
 
 function checkAll(id, checked) {
   $('#'+id).find('input[type=checkbox]:enabled').prop('checked', checked);
@@ -731,6 +732,83 @@ function toggleNewObjectDropdown() {
     dropdown.removeClass('visible');
   }else{
     dropdown.addClass('visible');
+  }
+}
+
+
+function checkFileFields() {
+  var fields = $('#attachments_fields');
+  for(var i = 0; i< fields.children().length; i++){
+    var s = $(fields.children('span')[i]);
+    var s_title = s.children('input.title').val();              /*not mandatory*/
+    var s_description = s.children('input.description').val();  /*not mandatory*/
+    var s_file = s.children('input.file').val();                /*mandatory*/
+    if(s_file == ''){
+        alert((i+1) + ". attachment is empty, please choose a file!");
+        return false;
+    }
+  }
+}
+
+function checkFileFormat(el,message){
+    var allowed_exts = ["doc", "docx", "pdf", "txt", "html", "odt", "xls", "xlsx", "odf", "odp", "ppt", "pptx","zip", "png"];
+    var files = el.files;
+    if (files) {
+        for (var i=0; i<files.length; i++) {
+      splitFileName = files[i].name.split(".");
+      if(splitFileName.length == 1)
+      {
+        alert(message);
+        el.value = "";
+        continue;
+      }
+            var ext = splitFileName[splitFileName.length - 1]
+            if (ext == null || allowed_exts.indexOf(ext) == -1) {
+                alert(message);
+                el.value = "";
+            }
+        }
+    }
+}
+
+var fileFieldCount = 1;
+function addFileField() {
+  var fields = $('#attachments_fields');
+  if (fields.children().length >= 10){
+      alert("You can not submit more than 10 files at a time!");
+      return false;
+  }
+  fileFieldCount++;
+  var s = fields.children('span').first().clone();
+  s.children('input.file').attr('name', "attachments[" + fileFieldCount + "][file]").val('');
+  if(s.children('input.title') != null)
+    s.children('input.title').attr('name', "attachments[" + fileFieldCount + "][title]").val('');
+  s.children('input.description').attr('name', "attachments[" + fileFieldCount + "][description]").val('');
+  fields.append(s);
+}
+
+function removeFileField(el) {
+  var fields = $('#attachments_fields');
+  var s = $(el).parents('span').first();
+  if (fields.children().length > 1) {
+    s.remove();
+  } else {
+    if(s.children('input.title') != null)
+        s.children('input.title').val('');
+    s.children('input.file').val('');
+    s.children('input.description').val('');
+  }
+}
+
+function checkFileSize(el, maxSize, message) {
+  var files = el.files;
+  if (files) {
+    for (var i=0; i<files.length; i++) {
+      if (files[i].size > maxSize) {
+        alert(message);
+        el.value = "";
+      }
+    }
   }
 }
 

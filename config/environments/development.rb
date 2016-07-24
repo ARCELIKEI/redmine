@@ -18,4 +18,6 @@ Rails.application.configure do
 
   # Print deprecation notices to stderr and the Rails logger.
   config.active_support.deprecation = [:stderr, :log]
+
+  config.action_mailer.perform_deliveries = true
 end
