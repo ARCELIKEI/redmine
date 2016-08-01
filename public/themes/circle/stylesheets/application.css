@@ -327,8 +327,8 @@ img.gravatar {
 }
 
 div.flash.notice, #flash_notice {
-	background:#5cc512;
-	color: #fff;
+	background:#bdef9a;
+	color: #333;
 }
 
 div.flash.error, #errorExplanation {
