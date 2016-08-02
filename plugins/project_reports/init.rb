@@ -1,10 +1,9 @@
 Redmine::Plugin.register :project_reports do
   name 'Project Reports plugin'
-  author 'Arcelik AR-GE!'
-  description 'Changes core redmine :('
+  author 'Arcelik AR-GE'
+  description 'Project reports plugin should be enabled from project settings.'
   version '0.0.1'
-  url 'http://example.com/path/to/plugin'
-  author_url 'http://example.com/about'
+  url 'https://github.com/ARCELIKEI/redmine/tree/arriva-3.0/plugins/project_reports'
 
 
   menu :project_menu, :project_reports, { :controller => 'project_reports', :action => 'index' }, :caption => :project_reportss, :after => :activity, :param => :project_id

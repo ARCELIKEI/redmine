@@ -1,10 +1,9 @@
 Redmine::Plugin.register :risk_assessment do
   name 'Risk Assessment plugin'
-  author 'Arcelik AR-GE!'
-  description 'Changes core redmine :('
+  author 'Arcelik AR-GE'
+  description 'Risk assessment for projects. Need to be selected from project settings.'
   version '0.0.1'
-  url 'http://example.com/path/to/plugin'
-  author_url 'http://example.com/about'
+  url 'https://github.com/ARCELIKEI/redmine/tree/arriva-3.0/plugins/risk_assessment'
 
 
   add_tab :critical_value, :partial => 'tab/critical_value_set'
@@ -24,6 +23,3 @@ Redmine::Plugin.register :risk_assessment do
   end
 
 end
-
-
-#menu :project_menu, :polls, { :controller => 'polls', :action => 'index' }, :caption => 'Polls', :param => :project_id
