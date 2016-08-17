@@ -31,7 +31,6 @@ en:
   field_risk_description: "Description"
   field_trig_event: "Trigger Event"
   field_mitig_contin: "Mitigation & Contingency Plan"
-  field_assigned_to: "Assigneed to" 
   field_no_ass: "No Assignee!"
 
   add_risk_to_assignee: "Add Risk To Assignee"
