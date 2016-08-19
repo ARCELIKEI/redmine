@@ -1,6 +1,20 @@
 require 'rexml/document'
 
 module Redmine
+  module ARRIVA_VERSION
+    PRODUCT = 'ARR'
+    BUNDLE  = 'BND'
+    MAJOR   = 3.to_s.rjust(2, "0")
+    MINOR   = 0.to_s.rjust(2, "0")
+    PATCH   = 0.to_s.rjust(2, "0")
+
+    ARRAY    = [PRODUCT, BUNDLE, MAJOR, MINOR, PATCH].compact
+    STRING   = ARRAY.join('.')
+
+    def self.to_a; ARRAY  end
+    def self.to_s; STRING end
+  end
+
   module VERSION #:nodoc:
     MAJOR = 3
     MINOR = 3

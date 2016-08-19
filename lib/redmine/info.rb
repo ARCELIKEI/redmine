@@ -9,6 +9,7 @@ module Redmine
       def environment
         s = "Environment:\n"
         s << [
+          ["Arriva version", Redmine::ARRIVA_VERSION],
           ["Redmine version", Redmine::VERSION],
           ["Ruby version", "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"],
           ["Rails version", Rails::VERSION::STRING],
